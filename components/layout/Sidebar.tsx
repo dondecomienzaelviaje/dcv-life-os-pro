@@ -23,7 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Desafíos", href: "/desafios" },
   { label: "Progreso", href: "/progreso" },
   { label: "Biblioteca DCV", href: "/biblioteca" },
-  { label: "Tienda DCV", href: "https://tienda.dcvcorp.com", external: true },
+  { label: "Tienda DCV", href: "https://shop.dcvcorp.com", external: true },
   { label: "Perfil", href: "/perfil" },
   { label: "Configuración", href: "/configuracion" },
 ];
