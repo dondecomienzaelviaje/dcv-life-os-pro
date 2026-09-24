@@ -1,0 +1,13 @@
+@theme {
+    --color-bg: #0a0a0a;
+    --color-surface: #141414;
+    --color-surface-2: #1c1c1c;
+    --color-line: rgba(255, 255, 255, 0.08);
+    --color-white: #f4f3ef;
+    --color-muted: #8f8c85;
+    --color-gold: #caa24a;
+    --color-gold-dim: rgba(202, 162, 74, 0.16);
+  
+    --font-display: "Space Grotesk", sans-serif;
+    --font-body: "Manrope", sans-serif;
+  }
