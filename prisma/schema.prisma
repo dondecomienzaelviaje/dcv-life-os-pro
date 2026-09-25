@@ -20,6 +20,7 @@ model User {
 
   tasks Task[]
   goals Goal[]
+   habits Habit[]
 }
 
 enum TaskStatus {
@@ -56,4 +57,24 @@ model Goal {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+model Habit {
+  id        String   @id @default(cuid())
+  name      String
+  category  String?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs   HabitLog[]
+}
+
+model HabitLog {
+  id   String   @id @default(cuid())
+  date DateTime
+
+  habitId String
+  habit   Habit  @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date])
 }
