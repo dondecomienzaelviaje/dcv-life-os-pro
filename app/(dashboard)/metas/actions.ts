@@ -15,6 +15,30 @@ export async function getMetas() {
   });
 }
 
+export async function crearMeta(data: {
+  name: string;
+  description?: string;
+  category?: string;
+  priority?: string;
+  targetLabel?: string;
+}) {
+  const user = await getOrCreateUser();
+  if (!user) return;
+
+  await prisma.goal.create({
+    data: {
+      name: data.name,
+      description: data.description,
+      category: data.category,
+      priority: data.priority,
+      targetLabel: data.targetLabel,
+      userId: user.id,
+    },
+  });
+
+  revalidatePath("/metas");
+}
+
 export async function avanzarMeta(id: string, incremento: number = 10) {
   const user = await getOrCreateUser();
   if (!user) return;
@@ -34,6 +58,17 @@ export async function avanzarMeta(id: string, incremento: number = 10) {
   if (nuevoProgreso >= 100 && meta.progressPercent < 100) {
     await otorgarPuntos(user.id, PUNTOS.META);
   }
+
+  revalidatePath("/metas");
+}
+
+export async function eliminarMeta(id: string) {
+  const user = await getOrCreateUser();
+  if (!user) return;
+
+  await prisma.goal.deleteMany({
+    where: { id, userId: user.id },
+  });
 
   revalidatePath("/metas");
 }
