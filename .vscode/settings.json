@@ -1,0 +1,9 @@
+{
+    "js/ts.tsserver.watchOptions": {
+      "watchFile": "useFsEvents"
+    },
+    "files.watcherExclude": {
+      "**/node_modules/.prisma/**": false,
+      "**/node_modules/@prisma/**": false
+    }
+  }

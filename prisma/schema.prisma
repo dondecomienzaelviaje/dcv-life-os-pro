@@ -23,6 +23,7 @@ model User {
   projects     Project[]
   transactions Transaction[]
   books        Book[]
+  entries      JournalEntry[]
 }
 
 enum TaskStatus {
@@ -136,6 +137,17 @@ model Book {
   totalPages    Int?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  tags      String[]
+  createdAt DateTime @default(now())
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
