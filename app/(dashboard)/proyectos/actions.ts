@@ -15,6 +15,37 @@ export async function getProyectos(): Promise<Project[]> {
   });
 }
 
+export async function crearProyecto(data: {
+  name: string;
+  description?: string;
+  relatedGoal?: string;
+}) {
+  const user = await getOrCreateUser();
+  if (!user) return;
+
+  await prisma.project.create({
+    data: {
+      name: data.name,
+      description: data.description,
+      relatedGoal: data.relatedGoal,
+      userId: user.id,
+    },
+  });
+
+  revalidatePath("/proyectos");
+}
+
+export async function eliminarProyecto(id: string) {
+  const user = await getOrCreateUser();
+  if (!user) return;
+
+  await prisma.project.deleteMany({
+    where: { id, userId: user.id },
+  });
+
+  revalidatePath("/proyectos");
+}
+
 const SIGUIENTE_ESTADO: Record<ProjectStatus, ProjectStatus> = {
   IDEA: "PLANIFICACION",
   PLANIFICACION: "EN_PROGRESO",
