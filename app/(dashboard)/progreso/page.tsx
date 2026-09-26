@@ -1,25 +1,20 @@
 import Card from "@/components/ui/Card";
+import { getEstadisticas } from "./actions";
 
-const RESUMEN = [
-  { label: "Tareas completadas", valor: 142 },
-  { label: "Hábitos cumplidos", valor: 89 },
-  { label: "Metas alcanzadas", valor: 3 },
-  { label: "Libros terminados", valor: 4 },
-  { label: "Desafíos completados", valor: 1 },
-  { label: "Puntos DCV totales", valor: 1280 },
-];
+const DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
-const SEMANA = [
-  { dia: "Lun", valor: 80 },
-  { dia: "Mar", valor: 60 },
-  { dia: "Mié", valor: 100 },
-  { dia: "Jue", valor: 40 },
-  { dia: "Vie", valor: 90 },
-  { dia: "Sáb", valor: 70 },
-  { dia: "Dom", valor: 50 },
-];
+export default async function ProgresoPage() {
+  const stats = await getEstadisticas();
 
-export default function ProgresoPage() {
+  const resumen = [
+    { label: "Tareas completadas", valor: stats.tareasCompletadas },
+    { label: "Hábitos cumplidos", valor: stats.habitosCumplidos },
+    { label: "Metas alcanzadas", valor: stats.metasAlcanzadas },
+    { label: "Libros terminados", valor: stats.librosTerminados },
+    { label: "Desafíos completados", valor: stats.desafiosCompletados },
+    { label: "Puntos DCV totales", valor: stats.puntos },
+  ];
+
   return (
     <>
       <div className="mb-6">
@@ -30,7 +25,7 @@ export default function ProgresoPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5 mb-6">
-        {RESUMEN.map((r) => (
+        {resumen.map((r) => (
           <Card key={r.label}>
             <div className="text-xs text-muted mb-2">{r.label}</div>
             <div className="font-display text-xl font-semibold text-gold">{r.valor}</div>
@@ -39,15 +34,15 @@ export default function ProgresoPage() {
       </div>
 
       <Card>
-        <h2 className="text-sm font-semibold mb-5">Cumplimiento semanal</h2>
+        <h2 className="text-sm font-semibold mb-5">Hábitos cumplidos esta semana</h2>
         <div className="flex items-end gap-3 h-40">
-          {SEMANA.map((s) => (
-            <div key={s.dia} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+          {stats.semana.map((valor, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
               <div
-                className="w-full bg-gold rounded-t-md"
-                style={{ height: `${s.valor}%` }}
+                className="w-full bg-gold rounded-t-md transition-all"
+                style={{ height: `${valor}%`, minHeight: valor > 0 ? "4px" : "0" }}
               />
-              <span className="text-[11px] text-muted">{s.dia}</span>
+              <span className="text-[11px] text-muted">{DIAS[i]}</span>
             </div>
           ))}
         </div>
