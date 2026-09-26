@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { Book } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateUser } from "@/lib/current-user";
+import { otorgarPuntos, PUNTOS } from "@/lib/points";
 
-export async function getLibros(): Promise<Book[]> {
+export async function getLibros() {
   const user = await getOrCreateUser();
   if (!user) return [];
 
@@ -58,6 +58,10 @@ export async function avanzarPaginas(id: string, paginas: number = 10) {
     where: { id },
     data: { currentPage: nuevaPagina, status: nuevoEstado },
   });
+
+  if (nuevoEstado === "TERMINADO" && libro.status !== "TERMINADO") {
+    await otorgarPuntos(user.id, PUNTOS.LIBRO);
+  }
 
   revalidatePath("/lecturas");
 }

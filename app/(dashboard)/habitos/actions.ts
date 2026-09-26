@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateUser } from "@/lib/current-user";
+import { otorgarPuntos, PUNTOS } from "@/lib/points";
 
 function inicioDelDia(fecha: Date) {
   const d = new Date(fecha);
@@ -30,7 +31,7 @@ export async function getHabitos() {
 
   return habitos.map((h: (typeof habitos)[number]) => {
     const fechasCumplidas = new Set(
-        h.logs.map((l: (typeof h.logs)[number]) => l.date.toISOString().slice(0, 10))
+      h.logs.map((l: (typeof h.logs)[number]) => l.date.toISOString().slice(0, 10))
     );
 
     const heatmap: boolean[] = [];
@@ -89,8 +90,10 @@ export async function toggleHabitoHoy(habitId: string) {
 
   if (logHoy) {
     await prisma.habitLog.delete({ where: { id: logHoy.id } });
+    await otorgarPuntos(user.id, -PUNTOS.HABITO);
   } else {
     await prisma.habitLog.create({ data: { habitId, date: hoy } });
+    await otorgarPuntos(user.id, PUNTOS.HABITO);
   }
 
   revalidatePath("/habitos");

@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { Challenge } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateUser } from "@/lib/current-user";
+import { otorgarPuntos } from "@/lib/points";
 
 const DESAFIOS_BASE = [
   { name: "7 días de disciplina", totalDays: 7, points: 100 },
@@ -11,7 +11,7 @@ const DESAFIOS_BASE = [
   { name: "30 días de enfoque", totalDays: 30, points: 400 },
 ];
 
-export async function getDesafios(): Promise<Challenge[]> {
+export async function getDesafios() {
   const user = await getOrCreateUser();
   if (!user) return [];
 
@@ -49,6 +49,10 @@ export async function avanzarDesafio(id: string) {
       startedAt: desafio.startedAt ?? new Date(),
     },
   });
+
+  if (completado) {
+    await otorgarPuntos(user.id, desafio.points);
+  }
 
   revalidatePath("/desafios");
 }

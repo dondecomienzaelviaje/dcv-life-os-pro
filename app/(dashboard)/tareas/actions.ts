@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateUser } from "@/lib/current-user";
+import { otorgarPuntos, PUNTOS } from "@/lib/points";
 
 export async function getTareas() {
   const user = await getOrCreateUser();
@@ -49,10 +50,18 @@ export async function ciclarEstadoTarea(id: string) {
     COMPLETADA: "PENDIENTE",
   } as const;
 
+  const nuevoEstado = siguiente[tarea.status];
+
   await prisma.task.update({
     where: { id },
-    data: { status: siguiente[tarea.status] },
+    data: { status: nuevoEstado },
   });
+
+  if (nuevoEstado === "COMPLETADA") {
+    await otorgarPuntos(user.id, PUNTOS.TAREA);
+  } else if (tarea.status === "COMPLETADA") {
+    await otorgarPuntos(user.id, -PUNTOS.TAREA);
+  }
 
   revalidatePath("/tareas");
 }
