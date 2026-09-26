@@ -7,7 +7,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model User {
   id        String   @id @default(cuid())
   clerkId   String   @unique
@@ -18,11 +17,12 @@ model User {
   level     Int      @default(1)
   createdAt DateTime @default(now())
 
-  tasks  Task[]
-  goals  Goal[]
-  habits Habit[]
-   projects Project[]
-   transactions Transaction[]
+  tasks        Task[]
+  goals        Goal[]
+  habits       Habit[]
+  projects     Project[]
+  transactions Transaction[]
+  books        Book[]
 }
 
 enum TaskStatus {
@@ -116,6 +116,26 @@ model Transaction {
   category String?
   note     String?
   date     DateTime        @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum BookStatus {
+  POR_LEER
+  LEYENDO
+  TERMINADO
+}
+
+model Book {
+  id            String     @id @default(cuid())
+  title         String
+  author        String?
+  status        BookStatus @default(POR_LEER)
+  currentPage   Int        @default(0)
+  totalPages    Int?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
