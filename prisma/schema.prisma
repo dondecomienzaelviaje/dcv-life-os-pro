@@ -24,6 +24,7 @@ model User {
   transactions Transaction[]
   books        Book[]
   entries      JournalEntry[]
+  challenges   Challenge[]
 }
 
 enum TaskStatus {
@@ -148,6 +149,27 @@ model JournalEntry {
   content   String
   tags      String[]
   createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ChallengeStatus {
+  DISPONIBLE
+  EN_CURSO
+  COMPLETADO
+}
+
+model Challenge {
+  id          String          @id @default(cuid())
+  name        String
+  description String?
+  totalDays   Int
+  currentDay  Int             @default(0)
+  points      Int
+  status      ChallengeStatus @default(DISPONIBLE)
+  startedAt   DateTime?
+  createdAt   DateTime        @default(now())
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
