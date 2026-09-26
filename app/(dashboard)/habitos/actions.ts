@@ -73,6 +73,32 @@ export async function getHabitos() {
   });
 }
 
+export async function crearHabito(data: { name: string; category?: string }) {
+  const user = await getOrCreateUser();
+  if (!user) return;
+
+  await prisma.habit.create({
+    data: {
+      name: data.name,
+      category: data.category,
+      userId: user.id,
+    },
+  });
+
+  revalidatePath("/habitos");
+}
+
+export async function eliminarHabito(id: string) {
+  const user = await getOrCreateUser();
+  if (!user) return;
+
+  await prisma.habit.deleteMany({
+    where: { id, userId: user.id },
+  });
+
+  revalidatePath("/habitos");
+}
+
 export async function toggleHabitoHoy(habitId: string) {
   const user = await getOrCreateUser();
   if (!user) return;

@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import Card from "@/components/ui/Card";
-import { toggleHabitoHoy } from "./actions";
+import { toggleHabitoHoy, eliminarHabito } from "./actions";
 
 type Habito = {
   id: string;
@@ -31,11 +31,19 @@ export default function HabitoCard({ habito }: { habito: Habito }) {
             </span>
           )}
         </div>
-        <div className="text-right">
-          <div className="font-display text-lg font-semibold text-gold">
-            {habito.cumplimiento}%
+        <div className="flex items-start gap-2">
+          <div className="text-right">
+            <div className="font-display text-lg font-semibold text-gold">
+              {habito.cumplimiento}%
+            </div>
+            <div className="text-[10.5px] text-muted">cumplimiento</div>
           </div>
-          <div className="text-[10.5px] text-muted">cumplimiento</div>
+          <button
+            onClick={() => startTransition(() => eliminarHabito(habito.id))}
+            className="text-[11px] text-muted hover:text-[#e0a3a3] transition-colors mt-0.5"
+          >
+            Eliminar
+          </button>
         </div>
       </div>
 
