@@ -7,6 +7,12 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Plan {
+  GRATIS
+  PRO
+}
+
 model User {
   id        String   @id @default(cuid())
   clerkId   String   @unique
@@ -15,6 +21,7 @@ model User {
   points    Int      @default(0)
   streak    Int      @default(0)
   level     Int      @default(1)
+  plan      Plan     @default(GRATIS)
   createdAt DateTime @default(now())
 
   tasks        Task[]
@@ -84,6 +91,7 @@ model HabitLog {
 
   @@unique([habitId, date])
 }
+
 enum ProjectStatus {
   IDEA
   PLANIFICACION
