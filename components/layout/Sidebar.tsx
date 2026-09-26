@@ -4,13 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 
-type NavItem = {
+export type NavItem = {
   label: string;
   href: string;
   external?: boolean;
 };
 
-const NAV_ITEMS: NavItem[] = [
+export const NAV_ITEMS: NavItem[] = [
   { label: "Mi día", href: "/dia" },
   { label: "Tareas", href: "/tareas" },
   { label: "Metas", href: "/metas" },
@@ -28,34 +28,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Configuración", href: "/configuracion" },
 ];
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
-  if (item.external) {
-    return ( <a
-        href={item.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-sm px-3 py-2.5 rounded-lg transition-colors text-muted hover:bg-surface-2 hover:text-white flex items-center justify-between"
-      >
-        {item.label}
-        <span className="text-[11px] opacity-60">↗</span>
-      </a>
-    );
-  }
-
-  return (
-    <Link
-      href={item.href}
-      className={`text-sm px-3 py-2.5 rounded-lg transition-colors ${
-        active
-          ? "bg-gold-dim text-gold font-semibold"
-          : "text-muted hover:bg-surface-2 hover:text-white"
-      }`}
-    >
-      {item.label}
-    </Link>
-  );
-}
-
 export default function Sidebar() {
   const pathname = usePathname();
 
@@ -69,11 +41,38 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex flex-col gap-0.5 overflow-y-auto">
-        {NAV_ITEMS.map((item) => (
-          <div key={item.href}>
-            <NavLink item={item} active={pathname === item.href} />
-          </div>
-        ))}
+        {NAV_ITEMS.map((item) => {
+          const active = !item.external && pathname === item.href;
+
+          if (item.external) {
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm px-3 py-2.5 rounded-lg transition-colors text-muted hover:bg-surface-2 hover:text-white flex items-center justify-between"
+              >
+                {item.label}
+                <span className="text-[11px] opacity-60">↗</span>
+              </a>
+            );
+          }
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`text-sm px-3 py-2.5 rounded-lg transition-colors ${
+                active
+                  ? "bg-gold-dim text-gold font-semibold"
+                  : "text-muted hover:bg-surface-2 hover:text-white"
+              }`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="mt-auto px-2">
