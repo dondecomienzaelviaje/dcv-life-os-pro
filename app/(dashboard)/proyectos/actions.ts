@@ -71,7 +71,7 @@ export async function avanzarEstadoProyecto(id: string) {
   revalidatePath("/proyectos");
 }
 
-export async function avanzarProgresoProyecto(id: string, incremento: number = 10) {
+export async function actualizarProgresoProyecto(id: string, nuevoPercent: number) {
   const user = await getOrCreateUser();
   if (!user) return;
 
@@ -80,12 +80,12 @@ export async function avanzarProgresoProyecto(id: string, incremento: number = 1
   });
   if (!proyecto) return;
 
-  const nuevoProgreso = Math.min(100, proyecto.progressPercent + incremento);
-  const nuevoEstado = nuevoProgreso >= 100 ? "COMPLETADO" : proyecto.status;
+  const valorLimitado = Math.max(0, Math.min(nuevoPercent, 100));
+  const nuevoEstado = valorLimitado >= 100 ? "COMPLETADO" : proyecto.status;
 
   await prisma.project.update({
     where: { id },
-    data: { progressPercent: nuevoProgreso, status: nuevoEstado },
+    data: { progressPercent: valorLimitado, status: nuevoEstado },
   });
 
   revalidatePath("/proyectos");
