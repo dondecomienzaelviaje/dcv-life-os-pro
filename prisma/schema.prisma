@@ -54,7 +54,6 @@ model Task {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
 model Goal {
   id              String    @id @default(cuid())
   name            String
@@ -62,6 +61,8 @@ model Goal {
   category        String?
   priority        String?
   progressPercent Int       @default(0)
+  currentValue    Int?
+  targetValue     Int?
   currentLabel    String?
   targetLabel     String?
   deadline        DateTime?

@@ -1,24 +1,29 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import type { Goal } from "@prisma/client";
 import Card from "@/components/ui/Card";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { avanzarMeta, eliminarMeta } from "./actions";
+import { actualizarProgreso, eliminarMeta } from "./actions";
 
-type Meta = {
-  id: string;
-  name: string;
-  description: string | null;
-  category: string | null;
-  priority: string | null;
-  progressPercent: number;
-  currentLabel: string | null;
-  targetLabel: string | null;
-};
+const formatNumero = (n: number) => n.toLocaleString("es-CO");
 
-export default function MetaItem({ meta }: { meta: Meta }) {
+export default function MetaItem({ meta }: { meta: Goal }) {
   const [isPending, startTransition] = useTransition();
+  const [editando, setEditando] = useState(false);
+  const [valorTemp, setValorTemp] = useState("");
+
   const completada = meta.progressPercent >= 100;
+  const esNumerica = meta.targetValue != null;
+
+  const guardar = () => {
+    const valor = parseInt(valorTemp, 10);
+    if (isNaN(valor)) return;
+    startTransition(async () => {
+      await actualizarProgreso(meta.id, valor);
+      setEditando(false);
+    });
+  };
 
   return (
     <Card className={isPending ? "opacity-50" : ""}>
@@ -51,24 +56,57 @@ export default function MetaItem({ meta }: { meta: Meta }) {
         <p className="text-muted text-sm mb-4">{meta.description}</p>
       )}
       <ProgressBar percent={meta.progressPercent} />
-      <div className="flex justify-between text-xs text-muted mt-2 mb-4">
-        <span>
-          {meta.currentLabel && meta.targetLabel
-            ? `${meta.currentLabel} de ${meta.targetLabel}`
-            : meta.targetLabel
-            ? `Meta: ${meta.targetLabel}`
-            : "Progreso"}
-        </span>
+      <div className="flex justify-between items-center text-xs text-muted mt-2 mb-4">
+        {esNumerica ? (
+          editando ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={valorTemp}
+                onChange={(e) => setValorTemp(e.target.value)}
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && guardar()}
+                className="bg-surface-2 border border-line rounded-lg px-2 py-1 text-xs w-28 outline-none focus:border-gold"
+              />
+              <button
+                onClick={guardar}
+                className="text-gold text-xs font-semibold hover:opacity-80"
+              >
+                Guardar
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setValorTemp(String(meta.currentValue ?? 0));
+                setEditando(true);
+              }}
+              className="hover:text-white transition-colors"
+            >
+              {formatNumero(meta.currentValue ?? 0)} de {formatNumero(meta.targetValue!)}
+            </button>
+          )
+        ) : (
+          <span>Progreso</span>
+        )}
         <span className="text-gold font-semibold">{meta.progressPercent}%</span>
       </div>
-      {!completada && (
-        <button
-          onClick={() => startTransition(() => avanzarMeta(meta.id, 10))}
-          disabled={isPending}
-          className="text-xs text-gold border border-gold-dim bg-gold-dim rounded-lg px-3 py-1.5 hover:opacity-80 transition-opacity"
-        >
-          + Registrar avance (10%)
-        </button>
+      {!esNumerica && !completada && (
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            placeholder="% completado"
+            value={editando ? valorTemp : ""}
+            onFocus={() => {
+              setEditando(true);
+              setValorTemp(String(meta.progressPercent));
+            }}
+            onChange={(e) => setValorTemp(e.target.value)}
+            onBlur={guardar}
+            onKeyDown={(e) => e.key === "Enter" && guardar()}
+            className="bg-surface-2 border border-line rounded-lg px-2 py-1.5 text-xs w-28 outline-none focus:border-gold"
+          />
+        </div>
       )}
     </Card>
   );

@@ -22,7 +22,7 @@ export default function MetasClient({ metas }: { metas: Goal[] }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState(CATEGORIAS[0]);
-  const [targetLabel, setTargetLabel] = useState("");
+  const [targetValue, setTargetValue] = useState("");
 
   const handleSubmit = () => {
     if (!name.trim()) return;
@@ -31,11 +31,11 @@ export default function MetasClient({ metas }: { metas: Goal[] }) {
         name,
         description: description || undefined,
         category,
-        targetLabel: targetLabel || undefined,
+        targetValue: targetValue ? parseInt(targetValue, 10) : undefined,
       });
       setName("");
       setDescription("");
-      setTargetLabel("");
+      setTargetValue("");
       setMostrarForm(false);
     });
   };
@@ -85,10 +85,11 @@ export default function MetasClient({ metas }: { metas: Goal[] }) {
               ))}
             </select>
             <input
-              value={targetLabel}
-              onChange={(e) => setTargetLabel(e.target.value)}
-              placeholder="Meta (ej. $5.000.000, opcional)"
-              className="bg-surface-2 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-gold flex-1"
+              type="number"
+              value={targetValue}
+              onChange={(e) => setTargetValue(e.target.value)}
+              placeholder="Meta numérica (ej. 5000000, opcional)"
+              className="bg-surface-2 border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-gold flex-1 min-w-[200px]"
             />
             <button
               onClick={handleSubmit}
@@ -98,6 +99,9 @@ export default function MetasClient({ metas }: { metas: Goal[] }) {
               Guardar
             </button>
           </div>
+          <p className="text-[11px] text-muted">
+            Si dejas la meta numérica vacía, el progreso se controla manualmente en %.
+          </p>
         </Card>
       )}
 

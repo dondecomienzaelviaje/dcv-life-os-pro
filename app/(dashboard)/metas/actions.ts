@@ -19,8 +19,7 @@ export async function crearMeta(data: {
   name: string;
   description?: string;
   category?: string;
-  priority?: string;
-  targetLabel?: string;
+  targetValue?: number;
 }) {
   const user = await getOrCreateUser();
   if (!user) return;
@@ -30,8 +29,8 @@ export async function crearMeta(data: {
       name: data.name,
       description: data.description,
       category: data.category,
-      priority: data.priority,
-      targetLabel: data.targetLabel,
+      targetValue: data.targetValue,
+      currentValue: data.targetValue ? 0 : undefined,
       userId: user.id,
     },
   });
@@ -39,7 +38,7 @@ export async function crearMeta(data: {
   revalidatePath("/metas");
 }
 
-export async function avanzarMeta(id: string, incremento: number = 10) {
+export async function actualizarProgreso(id: string, nuevoValor: number) {
   const user = await getOrCreateUser();
   if (!user) return;
 
@@ -48,15 +47,27 @@ export async function avanzarMeta(id: string, incremento: number = 10) {
   });
   if (!meta) return;
 
-  const nuevoProgreso = Math.min(100, meta.progressPercent + incremento);
+  let nuevoProgreso: number;
 
-  await prisma.goal.update({
-    where: { id },
-    data: { progressPercent: nuevoProgreso },
-  });
+  if (meta.targetValue && meta.targetValue > 0) {
+    const valorLimitado = Math.max(0, Math.min(nuevoValor, meta.targetValue));
+    nuevoProgreso = Math.round((valorLimitado / meta.targetValue) * 100);
+    await prisma.goal.update({
+      where: { id },
+      data: { currentValue: valorLimitado, progressPercent: nuevoProgreso },
+    });
+  } else {
+    nuevoProgreso = Math.max(0, Math.min(nuevoValor, 100));
+    await prisma.goal.update({
+      where: { id },
+      data: { progressPercent: nuevoProgreso },
+    });
+  }
 
   if (nuevoProgreso >= 100 && meta.progressPercent < 100) {
     await otorgarPuntos(user.id, PUNTOS.META);
+  } else if (nuevoProgreso < 100 && meta.progressPercent >= 100) {
+    await otorgarPuntos(user.id, -PUNTOS.META);
   }
 
   revalidatePath("/metas");
