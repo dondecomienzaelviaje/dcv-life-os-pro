@@ -22,7 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Diario", href: "/diario" },
   { label: "Desafíos", href: "/desafios" },
   { label: "Progreso", href: "/progreso" },
-  { label: "Biblioteca DCV", href: "/biblioteca" },
+  { label: "Biblioteca DCV", href: "https://biblioteca.dcvcorp.com", external: true },
   { label: "Tienda DCV", href: "https://shop.dcvcorp.com", external: true },
   { label: "Perfil", href: "/perfil" },
   { label: "Configuración", href: "/configuracion" },
@@ -46,8 +46,8 @@ export default function Sidebar() {
 
           if (item.external) {
             return (
-              <a
-                key={item.href}
+              
+               <a key={item.href}
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
