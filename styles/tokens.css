@@ -1,13 +1,35 @@
 @theme {
-    --color-bg: #0a0a0a;
-    --color-surface: #141414;
-    --color-surface-2: #1c1c1c;
-    --color-line: rgba(255, 255, 255, 0.08);
-    --color-white: #f4f3ef;
-    --color-muted: #8f8c85;
-    --color-gold: #caa24a;
-    --color-gold-dim: rgba(202, 162, 74, 0.16);
-  
-    --font-display: "Space Grotesk", sans-serif;
-    --font-body: "Manrope", sans-serif;
-  }
+  --color-bg: #0a0a0a;
+  --color-surface: #141414;
+  --color-surface-2: #1c1c1c;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-white: #f4f3ef;
+  --color-muted: #8f8c85;
+  --color-gold: #caa24a;
+  --color-gold-dim: rgba(202, 162, 74, 0.16);
+
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Manrope", sans-serif;
+}
+
+aside nav::-webkit-scrollbar {
+width: 6px;
+}
+
+aside nav::-webkit-scrollbar-track {
+background: transparent;
+}
+
+aside nav::-webkit-scrollbar-thumb {
+background: var(--color-surface-2);
+border-radius: 3px;
+}
+
+aside nav::-webkit-scrollbar-thumb:hover {
+background: var(--color-line);
+}
+
+aside nav {
+scrollbar-width: thin;
+scrollbar-color: var(--color-surface-2) transparent;
+}
