@@ -3,17 +3,36 @@
 import { useState, useTransition } from "react";
 import type { Task } from "@prisma/client";
 import Card from "@/components/ui/Card";
-import { togglePrioridad } from "./actions";
+import { togglePrioridad, asignarHora } from "./actions";
 
 const VISTAS = ["Día", "Semana", "Mes"] as const;
 const DIAS_SEMANA = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
-export default function PlanificadorClient({ tareas }: { tareas: Task[] }) {
+export default function PlanificadorClient({
+  tareas,
+  agendaHoy,
+}: {
+  tareas: Task[];
+  agendaHoy: Task[];
+}) {
   const [vista, setVista] = useState<(typeof VISTAS)[number]>("Día");
   const [isPending, startTransition] = useTransition();
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [horaTemp, setHoraTemp] = useState("");
 
   const prioridades = tareas.filter((t) => t.isPriority);
   const disponibles = tareas.filter((t) => !t.isPriority);
+
+  const conHora = agendaHoy.filter((t) => t.scheduledTime);
+  const sinHora = agendaHoy.filter((t) => !t.scheduledTime);
+
+  const guardarHora = (id: string) => {
+    startTransition(async () => {
+      await asignarHora(id, horaTemp || null);
+      setEditandoId(null);
+      setHoraTemp("");
+    });
+  };
 
   return (
     <>
@@ -84,10 +103,84 @@ export default function PlanificadorClient({ tareas }: { tareas: Task[] }) {
       </Card>
 
       {vista === "Día" && (
-        <Card>
-          <p className="text-muted text-sm text-center py-10">
-            La agenda por horas se conecta a datos reales en un próximo paso.
-          </p>
+        <Card className={isPending ? "opacity-50" : ""}>
+          <h2 className="text-sm font-semibold mb-4">Agenda de hoy</h2>
+
+          {agendaHoy.length === 0 ? (
+            <p className="text-muted text-sm text-center py-10">
+              No tienes tareas pendientes. Crea alguna en Tareas.
+            </p>
+          ) : (
+            <div className="flex flex-col">
+              {conHora.map((t) => (
+                <div
+                  key={t.id}
+                  className="flex items-center gap-4 py-3 border-b border-line"
+                >
+                  {editandoId === t.id ? (
+                    <input
+                      type="time"
+                      value={horaTemp}
+                      onChange={(e) => setHoraTemp(e.target.value)}
+                      onBlur={() => guardarHora(t.id)}
+                      autoFocus
+                      className="bg-surface-2 border border-line rounded-lg px-2 py-1 text-xs w-24 outline-none focus:border-gold"
+                    />
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setEditandoId(t.id);
+                        setHoraTemp(t.scheduledTime ?? "");
+                      }}
+                      className="text-xs text-gold w-16 shrink-0 text-left hover:opacity-80"
+                    >
+                      {t.scheduledTime}
+                    </button>
+                  )}
+                  <span className="flex-1 text-sm">{t.title}</span>
+                  {t.category && (
+                    <span className="text-[11px] text-muted border border-line rounded-full px-2 py-0.5">
+                      {t.category}
+                    </span>
+                  )}
+                </div>
+              ))}
+
+              {sinHora.length > 0 && (
+                <>
+                  <p className="text-[11px] text-muted mt-4 mb-2">Sin hora asignada</p>
+                  {sinHora.map((t) => (
+                    <div
+                      key={t.id}
+                      className="flex items-center gap-4 py-3 border-b border-line last:border-0"
+                    >
+                      {editandoId === t.id ? (
+                        <input
+                          type="time"
+                          value={horaTemp}
+                          onChange={(e) => setHoraTemp(e.target.value)}
+                          onBlur={() => guardarHora(t.id)}
+                          autoFocus
+                          className="bg-surface-2 border border-line rounded-lg px-2 py-1 text-xs w-24 outline-none focus:border-gold"
+                        />
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setEditandoId(t.id);
+                            setHoraTemp("");
+                          }}
+                          className="text-xs text-muted w-16 shrink-0 text-left hover:text-white"
+                        >
+                          + hora
+                        </button>
+                      )}
+                      <span className="flex-1 text-sm">{t.title}</span>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
         </Card>
       )}
 

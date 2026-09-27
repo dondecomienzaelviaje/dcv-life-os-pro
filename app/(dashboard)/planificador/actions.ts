@@ -38,3 +38,14 @@ export async function togglePrioridad(id: string) {
 
   revalidatePath("/planificador");
 }
+export async function asignarHora(id: string, scheduledTime: string | null) {
+  const user = await getOrCreateUser();
+  if (!user) return;
+
+  await prisma.task.updateMany({
+    where: { id, userId: user.id },
+    data: { scheduledTime },
+  });
+
+  revalidatePath("/planificador");
+}
