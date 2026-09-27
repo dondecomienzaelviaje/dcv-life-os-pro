@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import Badge from "@/components/ui/Badge";
-import { ciclarEstadoTarea } from "./actions";
+import { ciclarEstadoTarea, eliminarTarea } from "./actions";
 
 type Tarea = {
   id: string;
@@ -65,6 +65,13 @@ export default function TareaItem({
       <Badge variant={ESTADO_BADGE[tarea.status]}>
         {ESTADO_LABEL[tarea.status]}
       </Badge>
+      <button
+        onClick={() => startTransition(() => eliminarTarea(tarea.id))}
+        disabled={isPending}
+        className="text-[11px] text-muted hover:text-[#e0a3a3] transition-colors shrink-0"
+      >
+        Eliminar
+      </button>
     </div>
   );
 }

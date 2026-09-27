@@ -35,6 +35,17 @@ export async function crearTarea(data: {
   revalidatePath("/tareas");
 }
 
+export async function eliminarTarea(id: string) {
+  const user = await getOrCreateUser();
+  if (!user) return;
+
+  await prisma.task.deleteMany({
+    where: { id, userId: user.id },
+  });
+
+  revalidatePath("/tareas");
+}
+
 export async function ciclarEstadoTarea(id: string) {
   const user = await getOrCreateUser();
   if (!user) return;
