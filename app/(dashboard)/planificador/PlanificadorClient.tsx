@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import type { Task } from "@prisma/client";
 import Card from "@/components/ui/Card";
-import { togglePrioridad, asignarHora } from "./actions";
+import { togglePrioridad, asignarHora, asignarDia } from "./actions";
 
 const VISTAS = ["Día", "Semana", "Mes"] as const;
 const DIAS_SEMANA = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -11,14 +11,17 @@ const DIAS_SEMANA = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 export default function PlanificadorClient({
   tareas,
   agendaHoy,
+  tareasSemana,
 }: {
   tareas: Task[];
   agendaHoy: Task[];
+  tareasSemana: Task[];
 }) {
   const [vista, setVista] = useState<(typeof VISTAS)[number]>("Día");
   const [isPending, startTransition] = useTransition();
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [horaTemp, setHoraTemp] = useState("");
+  const [diaSeleccionado, setDiaSeleccionado] = useState<number | null>(null);
 
   const prioridades = tareas.filter((t) => t.isPriority);
   const disponibles = tareas.filter((t) => !t.isPriority);
@@ -33,6 +36,9 @@ export default function PlanificadorClient({
       setHoraTemp("");
     });
   };
+
+  const tareasPorDia = (dia: number) =>
+    tareasSemana.filter((t) => t.scheduledDay === dia);
 
   return (
     <>
@@ -113,10 +119,7 @@ export default function PlanificadorClient({
           ) : (
             <div className="flex flex-col">
               {conHora.map((t) => (
-                <div
-                  key={t.id}
-                  className="flex items-center gap-4 py-3 border-b border-line"
-                >
+                <div key={t.id} className="flex items-center gap-4 py-3 border-b border-line">
                   {editandoId === t.id ? (
                     <input
                       type="time"
@@ -150,10 +153,7 @@ export default function PlanificadorClient({
                 <>
                   <p className="text-[11px] text-muted mt-4 mb-2">Sin hora asignada</p>
                   {sinHora.map((t) => (
-                    <div
-                      key={t.id}
-                      className="flex items-center gap-4 py-3 border-b border-line last:border-0"
-                    >
+                    <div key={t.id} className="flex items-center gap-4 py-3 border-b border-line last:border-0">
                       {editandoId === t.id ? (
                         <input
                           type="time"
@@ -185,18 +185,92 @@ export default function PlanificadorClient({
       )}
 
       {vista === "Semana" && (
-        <Card>
-          <div className="grid grid-cols-7 gap-2 text-center">
-            {DIAS_SEMANA.map((d) => (
-              <div key={d}>
-                <div className="text-xs text-muted mb-2">{d}</div>
-                <div className="h-24 rounded-xl border border-line bg-surface-2 flex items-center justify-center text-[11px] text-muted">
-                  —
+        <>
+          <Card className="mb-4">
+            <div className="grid grid-cols-7 gap-2 text-center">
+              {DIAS_SEMANA.map((d, i) => {
+                const cantidad = tareasPorDia(i).length;
+                return (
+                  <button
+                    key={d}
+                    onClick={() => setDiaSeleccionado(i)}
+                    className={`transition-colors ${
+                      diaSeleccionado === i ? "" : ""
+                    }`}
+                  >
+                    <div className="text-xs text-muted mb-2">{d}</div>
+                    <div
+                      className={`h-24 rounded-xl border flex flex-col items-center justify-center gap-1 ${
+                        diaSeleccionado === i
+                          ? "bg-gold-dim border-transparent text-gold"
+                          : cantidad > 0
+                          ? "bg-surface-2 border-line text-white"
+                          : "bg-surface-2 border-line text-muted"
+                      }`}
+                    >
+                      <span className="font-display text-lg font-semibold">
+                        {cantidad || "—"}
+                      </span>
+                      {cantidad > 0 && (
+                        <span className="text-[10px] opacity-70">
+                          {cantidad === 1 ? "tarea" : "tareas"}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </Card>
+
+          {diaSeleccionado !== null && (
+            <Card className={isPending ? "opacity-50" : ""}>
+              <h2 className="text-sm font-semibold mb-4">
+                Tareas del {DIAS_SEMANA[diaSeleccionado]}
+              </h2>
+              {tareasPorDia(diaSeleccionado).length === 0 ? (
+                <p className="text-muted text-sm text-center py-6">
+                  Ninguna tarea asignada a este día todavía.
+                </p>
+              ) : (
+                tareasPorDia(diaSeleccionado).map((t) => (
+                  <div key={t.id} className="flex items-center gap-3 py-2.5 border-b border-line last:border-0">
+                    <span className="flex-1 text-sm">{t.title}</span>
+                    {t.scheduledTime && (
+                      <span className="text-[11px] text-gold">{t.scheduledTime}</span>
+                    )}
+                    <button
+                      onClick={() => startTransition(() => asignarDia(t.id, null))}
+                      className="text-[11px] text-muted hover:text-[#e0a3a3] transition-colors"
+                    >
+                      Quitar
+                    </button>
+                  </div>
+                ))
+              )}
+              <div className="mt-4 pt-4 border-t border-line">
+                <p className="text-[11px] text-muted mb-2">
+                  Asignar una de tus tareas pendientes a este día:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {tareas
+                    .filter((t) => t.scheduledDay !== diaSeleccionado)
+                    .map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() =>
+                          startTransition(() => asignarDia(t.id, diaSeleccionado))
+                        }
+                        className="text-xs text-muted border border-line rounded-lg px-3 py-1.5 hover:text-white hover:border-white/20 transition-colors"
+                      >
+                        + {t.title}
+                      </button>
+                    ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </Card>
+            </Card>
+          )}
+        </>
       )}
 
       {vista === "Mes" && (

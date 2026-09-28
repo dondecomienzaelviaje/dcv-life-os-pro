@@ -49,3 +49,25 @@ export async function asignarHora(id: string, scheduledTime: string | null) {
 
   revalidatePath("/planificador");
 }
+
+export async function getTareasSemana() {
+  const user = await getOrCreateUser();
+  if (!user) return [];
+
+  return prisma.task.findMany({
+    where: { userId: user.id, status: { not: "COMPLETADA" }, scheduledDay: { not: null } },
+    orderBy: { scheduledTime: "asc" },
+  });
+}
+
+export async function asignarDia(id: string, scheduledDay: number | null) {
+  const user = await getOrCreateUser();
+  if (!user) return;
+
+  await prisma.task.updateMany({
+    where: { id, userId: user.id },
+    data: { scheduledDay },
+  });
+
+  revalidatePath("/planificador");
+}
