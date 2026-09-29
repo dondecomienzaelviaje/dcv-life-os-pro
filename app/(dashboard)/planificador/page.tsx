@@ -1,4 +1,4 @@
-import { getTareasPriorizables, getTareasSemana } from "./actions";
+import { getTareasPriorizables, getTareasSemana, getTareasMes } from "./actions";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateUser } from "@/lib/current-user";
 import PlanificadorClient from "./PlanificadorClient";
@@ -7,6 +7,7 @@ export default async function PlanificadorPage() {
   const user = await getOrCreateUser();
   const tareas = await getTareasPriorizables();
   const tareasSemana = await getTareasSemana();
+  const tareasMes = await getTareasMes();
 
   const agendaHoy = user
     ? await prisma.task.findMany({
@@ -16,6 +17,11 @@ export default async function PlanificadorPage() {
     : [];
 
   return (
-    <PlanificadorClient tareas={tareas} agendaHoy={agendaHoy} tareasSemana={tareasSemana} />
+    <PlanificadorClient
+      tareas={tareas}
+      agendaHoy={agendaHoy}
+      tareasSemana={tareasSemana}
+      tareasMes={tareasMes}
+    />
   );
 }

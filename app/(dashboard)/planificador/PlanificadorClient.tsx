@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import type { Task } from "@prisma/client";
 import Card from "@/components/ui/Card";
 import { togglePrioridad, asignarHora, asignarDia } from "./actions";
+import VistaMes from "./VistaMes";
 
 const VISTAS = ["Día", "Semana", "Mes"] as const;
 const DIAS_SEMANA = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -12,10 +13,12 @@ export default function PlanificadorClient({
   tareas,
   agendaHoy,
   tareasSemana,
+  tareasMes,
 }: {
   tareas: Task[];
   agendaHoy: Task[];
   tareasSemana: Task[];
+  tareasMes: Task[];
 }) {
   const [vista, setVista] = useState<(typeof VISTAS)[number]>("Día");
   const [isPending, startTransition] = useTransition();
@@ -191,21 +194,13 @@ export default function PlanificadorClient({
               {DIAS_SEMANA.map((d, i) => {
                 const cantidad = tareasPorDia(i).length;
                 return (
-                  <button
-                    key={d}
-                    onClick={() => setDiaSeleccionado(i)}
-                    className={`transition-colors ${
-                      diaSeleccionado === i ? "" : ""
-                    }`}
-                  >
+                  <button key={d} onClick={() => setDiaSeleccionado(i)}>
                     <div className="text-xs text-muted mb-2">{d}</div>
                     <div
                       className={`h-24 rounded-xl border flex flex-col items-center justify-center gap-1 ${
                         diaSeleccionado === i
                           ? "bg-gold-dim border-transparent text-gold"
-                          : cantidad > 0
-                          ? "bg-surface-2 border-line text-white"
-                          : "bg-surface-2 border-line text-muted"
+                          : "bg-surface-2 border-line text-white"
                       }`}
                     >
                       <span className="font-display text-lg font-semibold">
@@ -273,13 +268,7 @@ export default function PlanificadorClient({
         </>
       )}
 
-      {vista === "Mes" && (
-        <Card>
-          <p className="text-muted text-sm text-center py-10">
-            Vista de calendario mensual — pendiente de conectar.
-          </p>
-        </Card>
-      )}
+      {vista === "Mes" && <VistaMes tareas={tareas} tareasMes={tareasMes} />}
     </>
   );
 }

@@ -39,7 +39,8 @@ enum TaskStatus {
   PENDIENTE
   PROGRESO
   COMPLETADA
-}model Task {
+}
+model Task {
   id            String     @id @default(cuid())
   title         String
   category      String?
@@ -48,6 +49,7 @@ enum TaskStatus {
   isPriority    Boolean    @default(false)
   scheduledTime String?
   scheduledDay  Int?
+  dueDate       DateTime?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
