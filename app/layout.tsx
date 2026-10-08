@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Space_Grotesk, Manrope } from "next/font/google";
 import "./globals.css";
@@ -15,9 +15,34 @@ const manrope = Manrope({
   variable: "--font-body",
 });
 
+const DESCRIPCION =
+  "Organiza tareas, hábitos, metas y finanzas en un solo lugar. Gratis con tu cuenta DCV ID.";
+
 export const metadata: Metadata = {
-  title: "DCV LIFE OS PRO",
-  description: "Tu sistema operativo personal.",
+  metadataBase: new URL("https://life.dcvcorp.com"),
+  title: {
+    default: "DCV LIFE OS: tu sistema operativo personal",
+    template: "%s | DCV LIFE OS",
+  },
+  description: DESCRIPCION,
+  applicationName: "DCV LIFE OS",
+  openGraph: {
+    title: "DCV LIFE OS: tu sistema operativo personal",
+    description: DESCRIPCION,
+    url: "/",
+    siteName: "DCV LIFE OS",
+    locale: "es_CO",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DCV LIFE OS: tu sistema operativo personal",
+    description: DESCRIPCION,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({
