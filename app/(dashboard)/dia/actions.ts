@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getOrCreateUser } from "@/lib/current-user";
-import { calcularNivel } from "@/lib/points";
+import { calcularNivel, siguienteNivel } from "@/lib/points";
 
 function inicioDelDia(fecha: Date) {
   const d = new Date(fecha);
@@ -19,6 +19,8 @@ export async function getMiDia() {
       points: 0,
       levelName: "Explorador",
       levelNumber: 1,
+      nextLevelName: null as string | null,
+      nextLevelMin: null as number | null,
       streak: 0,
       priorityTasks: [],
       habitPercentToday: 0,
@@ -63,12 +65,15 @@ export async function getMiDia() {
   }
 
   const nivel = calcularNivel(user.points);
+  const proximo = siguienteNivel(user.points);
 
   return {
     userName: user.name ?? "Usuario",
     points: user.points,
     levelName: nivel.name,
     levelNumber: nivel.level,
+    nextLevelName: proximo?.name ?? null,
+    nextLevelMin: proximo?.minPoints ?? null,
     streak: user.streak,
     priorityTasks,
     habitPercentToday,
