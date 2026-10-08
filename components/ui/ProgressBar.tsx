@@ -1,17 +1,21 @@
 type ProgressBarProps = {
-    percent: number;
-    className?: string;
-  };
-  
-  export default function ProgressBar({ percent, className = "" }: ProgressBarProps) {
-    const clamped = Math.min(100, Math.max(0, percent));
-  
-    return (
-      <div className={`h-1.5 rounded-full bg-surface-2 overflow-hidden ${className}`}>
-        <div
-          className="h-full bg-gold rounded-full transition-all"
-          style={{ width: `${clamped}%` }}
-        />
-      </div>
-    );
-  }
+  percent: number;
+  className?: string;
+};
+
+export default function ProgressBar({ percent, className = "" }: ProgressBarProps) {
+  const clamped = Math.min(100, Math.max(0, percent));
+
+  return (
+    <div className={`h-1.5 rounded-full bg-surface-2 overflow-hidden ${className}`}>
+      <div
+        className="h-full rounded-full transition-all"
+        style={{
+          width: `${clamped}%`,
+          background: "linear-gradient(90deg, var(--color-gold), var(--color-gold-soft))",
+          boxShadow: clamped > 0 ? "0 0 8px var(--color-gold-glow)" : "none",
+        }}
+      />
+    </div>
+  );
+}

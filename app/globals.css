@@ -3,7 +3,10 @@
 
 html,
 body {
-  background: var(--color-bg);
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(202, 162, 74, 0.05), transparent 60%),
+    var(--color-bg);
   color: var(--color-white);
   font-family: var(--font-body);
+  min-height: 100%;
 }
